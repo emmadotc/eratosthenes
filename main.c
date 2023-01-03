@@ -40,32 +40,32 @@ int main(int argc, char** argv)
     }
 
     /* check primes up to primes_stop */
-    ull primes_stop = strtoull(argv[1], NULL, 10);
-    if(primes_stop == 0)
+    ull primes_max = strtoull(argv[1], NULL, 10);
+    if(primes_max == 0)
     {
         show_help(argv[0]);
         return EXIT_FAILURE;
     }
 
-    ull array_max = primes_stop;
-    _Bool *primes = mmap(NULL, SIZE, PROT_WRITE | PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, sysconf(_SC_PAGESIZE));
-    if(primes == MAP_FAILED)
+    _Bool *primes = malloc(SIZE);
+    if(primes == NULL)
     {
-        perror("mmap");
-        return -2;
+        perror("malloc");
+        return EXIT_FAILURE;
     }
 
-    clock_t begin_primes = eratosthenes(primes_stop, &primes, &array_max);
-    // -1 clock() error, -2 function error
-    if(begin_primes < 0)
+    // init array
+    for(ull i = 0; i < primes_max; ++i)
     {
-        if(begin_primes == -1)
-        {
-            if(munmap(primes, SIZE) == -1)
-            {
-                perror("munmap");
-            }
-        }
+        primes[i] = 1;
+    }
+    primes[0] = 0;
+    primes[1] = 0;
+
+    clock_t begin_primes = eratosthenes(&primes, &primes_max);
+    if(begin_primes == -1)
+    {
+        free(primes);
         return EXIT_FAILURE;
     }
     clock_t end_primes = clock();
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     clock_t begin_print = clock();
     if(args.printing)
     {
-        for(ull primes_indx = 0; primes_indx < array_max; ++primes_indx)
+        for(ull primes_indx = 0; primes_indx < primes_max; ++primes_indx)
             if(primes[primes_indx])
             /* TODO: optimise printing */
                 printf("%llu\n", primes_indx);
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     clock_t end_print = clock();
 
     ull prime_count = 0;
-    for(ull i = 0; i < array_max; ++i)
+    for(ull i = 0; i < primes_max; ++i)
     {
         if(primes[i])
         {
@@ -97,11 +97,7 @@ int main(int argc, char** argv)
         printf("Printing took %0.fms\n",
             ((double)(end_print  - begin_print ) / CLOCKS_PER_SEC) * (double)1000);
 
-    if(munmap(primes, SIZE) == -1)
-    {
-        perror("munmap");
-        return EXIT_FAILURE;
-    }
+    free(primes);
     return EXIT_SUCCESS;
 }
 

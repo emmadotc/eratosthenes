@@ -3,8 +3,8 @@
 
 #define ull unsigned long long
 
-#define SIZE  ( array_max * sizeof(_Bool))
-#define SIZEP (*array_max * sizeof(_Bool))
+#define SIZE  ( primes_max * sizeof(_Bool))
+#define SIZEP (*primes_max * sizeof(_Bool))
 
 ull isqrt(ull i);
 

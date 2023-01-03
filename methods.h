@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-clock_t eratosthenes(ull primes_stop, _Bool** primes, ull* array_max);
+clock_t eratosthenes(_Bool** primes, ull* array_max);
 
 #endif
 
